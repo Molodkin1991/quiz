@@ -23,7 +23,6 @@ class QuestionDaoTest {
 
     @BeforeEach
     public void setup() {
-        flyway.clean();
         flyway.migrate();
     }
 

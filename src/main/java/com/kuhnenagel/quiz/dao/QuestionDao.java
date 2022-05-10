@@ -18,7 +18,7 @@ import java.util.Map;
 public class QuestionDao {
 
     private static final String INSERT_QUESTION =
-            "INSERT INTO public.question (topic, content, rank) "
+            "INSERT INTO question (topic, content, rank) "
                     + " VALUES "
                     + " (?, ?, ?)";
     private static final String UPDATE_QUESTION =
