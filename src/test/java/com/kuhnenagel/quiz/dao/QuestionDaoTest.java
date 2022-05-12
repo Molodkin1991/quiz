@@ -36,6 +36,15 @@ class QuestionDaoTest {
     }
 
     @Test
+    void ableToUpdateQuestion(){
+        Question questionResponse = questionDao.save(new Question("Content", "topic1", 1, List.of(new Response("content", true))));
+        assertEquals(1, questionResponse.getRank());
+        questionResponse.setRank(5);
+        Question questionResponse2 = questionDao.save(questionResponse);
+        assertEquals(5, questionResponse2.getRank());
+    }
+
+    @Test
     void ableToGetQuestionsByTopicAnd() {
         Question questionOneTopicOne = new Question("Content", "topic1", 1, List.of(new Response("content", true)));
         Question questionTwoTopicOne = new Question("Content", "topic1", 1, List.of(new Response("content", true)));
@@ -57,6 +66,5 @@ class QuestionDaoTest {
         assertTrue(questionDao.findById(questionFromDb.getId()).isEmpty());
         assertTrue(questionDao.findByTopic("topic2").isEmpty());
     }
-
 
 }

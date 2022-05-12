@@ -26,39 +26,39 @@ public class QuestionDao {
                     + " (?, ?, ?)";
     private static final String UPDATE_QUESTION =
             "UPDATE question "
-                    + "SET"
-                    + "topic =?"
-                    + "content =?"
-                    + "rank =?"
+                    + " SET "
+                    + " topic = ?, "
+                    + " question_content = ?, "
+                    + " rank = ? "
                     + " WHERE id = ?";
 
     private static final String UPDATE_QUESTION_QUIZ_ID =
             "UPDATE question "
-                    + "SET"
-                    + "quiz_id =?"
+                    + " SET "
+                    + " quiz_id = ? "
                     + " WHERE id = ?";
     private static final String UPDATE_QUESTION_CONTENT =
             "UPDATE question "
-                    + "SET"
-                    + "content =?"
-                    + " WHERE id = ?";
+                    + " SET "
+                    + " question_content = ? "
+                    + " WHERE id = ? ";
     private static final String DELETE_QUESTION =
             "DELETE FROM question "
-                    + "WHERE id = ?";
+                    + " WHERE id = ?";
     private static final String DELETE_RESPONSE =
             "DELETE FROM response "
-                    + "WHERE id = ?";
+                    + " WHERE id = ?";
 
     private static final String UPDATE_RESPONSE =
             "UPDATE response "
-                    + "SET"
-                    + " content = ? "
-                    + " correct = ? "
-                    + " WHERE id = ?";
+                    + " SET "
+                    + " content = ?, "
+                    + " correct = ?, "
+                    + " WHERE id = ? ";
     private static final String INSERT_RESPONSE =
             "INSERT INTO response (content, correct) "
                     + " VALUES "
-                    + " (?, ?)";
+                    + " (?, ?) ";
 
     private static final String FIND_QUESTION_BY_TOPIC =
             "SELECT * FROM question WHERE topic = ?";
