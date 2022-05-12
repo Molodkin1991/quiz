@@ -1,6 +1,7 @@
 package com.kuhnenagel.quiz.dao;
 
 import com.kuhnenagel.quiz.model.Question;
+import com.kuhnenagel.quiz.model.Quiz;
 import com.kuhnenagel.quiz.model.Response;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -20,6 +21,8 @@ import java.util.Optional;
 @Transactional
 public class QuestionDao {
 
+    private static final String WHERE_ID_IS = " WHERE id = ? ";
+
     private static final String INSERT_QUESTION =
             "INSERT INTO question (topic, question_content, rank) "
                     + " VALUES "
@@ -30,41 +33,50 @@ public class QuestionDao {
                     + " topic = ?, "
                     + " question_content = ?, "
                     + " rank = ? "
-                    + " WHERE id = ?";
+                    + WHERE_ID_IS;
 
+    private static final String INSERT_QUIZ =
+            "INSERT INTO quiz (name) VALUES (?) ";
+
+    private static final String UPDATE_QUIZ =
+            "UPDATE quiz "
+                    + " SET "
+                    + " name = ? "
+                    + WHERE_ID_IS;
     private static final String UPDATE_QUESTION_QUIZ_ID =
             "UPDATE question "
                     + " SET "
                     + " quiz_id = ? "
-                    + " WHERE id = ?";
+                    + WHERE_ID_IS;
     private static final String UPDATE_QUESTION_CONTENT =
             "UPDATE question "
                     + " SET "
                     + " question_content = ? "
-                    + " WHERE id = ? ";
+                    + WHERE_ID_IS;
+
     private static final String DELETE_QUESTION =
-            "DELETE FROM question "
-                    + " WHERE id = ?";
+            "DELETE FROM question " + WHERE_ID_IS;
     private static final String DELETE_RESPONSE =
-            "DELETE FROM response "
-                    + " WHERE id = ?";
+            "DELETE FROM response " + WHERE_ID_IS;
+    private static final String DELETE_RESPONSE_BY_QUESTION_ID
+            = "DELETE FROM response WHERE question_id = ?";
 
     private static final String UPDATE_RESPONSE =
             "UPDATE response "
                     + " SET "
-                    + " content = ?, "
-                    + " correct = ?, "
-                    + " WHERE id = ? ";
+                    + " response_content = ?, "
+                    + " correct = ? "
+                    + WHERE_ID_IS;
     private static final String INSERT_RESPONSE =
-            "INSERT INTO response (content, correct) "
+            "INSERT INTO response (response_content, correct, question_id) "
                     + " VALUES "
-                    + " (?, ?) ";
+                    + " (?, ?, ?) ";
 
     private static final String FIND_QUESTION_BY_TOPIC =
-            "SELECT * FROM question WHERE topic = ?";
+            "SELECT * FROM question WHERE topic = ? ";
 
     private static final String FIND_QUESTION_BY_ID =
-            "SELECT * FROM question WHERE id = ?";
+            "SELECT * FROM question " + WHERE_ID_IS;
 
     private static final String FIND_RESPONSE_BY_QUESTION_ID =
             "SELECT * FROM response WHERE question_id = ?";
@@ -103,7 +115,10 @@ public class QuestionDao {
     }
 
     private void saveAllResponses(Question question) {
-        question.getResponses().forEach(response -> response.setQuestionId(question.getId()));
+        for (Response response : question.getResponses()) {
+            response.setQuestionId(question.getId());
+            saveResponse(response);
+        }
     }
 
     private Response saveResponse(Response response) {
@@ -121,6 +136,7 @@ public class QuestionDao {
                 PreparedStatement ps = connection.prepareStatement(INSERT_RESPONSE, Statement.RETURN_GENERATED_KEYS);
                 ps.setString(1, response.getContent());
                 ps.setBoolean(2, response.isCorrect());
+                ps.setInt(3, response.getQuestionId());
                 return ps;
             }, keyHolder);
 
@@ -139,6 +155,33 @@ public class QuestionDao {
         });
     }
 
+    public Quiz saveQuiz(Quiz quiz) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        if (quiz.getId() != null) {
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection
+                        .prepareStatement(UPDATE_QUIZ, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, quiz.getName());
+                ps.setLong(2, quiz.getId());
+                return ps;
+            }, keyHolder);
+        } else {
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection
+                        .prepareStatement(INSERT_QUIZ, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, quiz.getName());
+                return ps;
+            }, keyHolder);
+        }
+        Integer quizId = (Integer) keyHolder.getKeyList().get(0).get("id");
+        for (Question question : quiz.getQuestions()) {
+            question.setQuizId(quizId);
+            save(question);
+        }
+        quiz.setId(quizId);
+        return quiz;
+    }
+
     public void addQuestionToQuiz(long quizId, Question question) {
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
@@ -155,11 +198,11 @@ public class QuestionDao {
     }
 
     private void deleteResponsesOf(Question question) {
-        question.getResponses().forEach(this::deleteResponse);
+        jdbcTemplate.update(DELETE_RESPONSE_BY_QUESTION_ID, question.getId());
     }
 
     public void deleteResponse(Response response) {
-        jdbcTemplate.update(DELETE_RESPONSE, response);
+        jdbcTemplate.update(DELETE_RESPONSE, response.getId());
     }
 
     private void deleteQuestion(long questionId) {
@@ -188,7 +231,7 @@ public class QuestionDao {
     }
 
     private Response getResponseForDbRow(Map<String, Object> row) {
-        return new Response((Integer) row.get("id"), (String) row.get("content"), (Boolean) row.get("correct"));
+        return new Response((Integer) row.get("id"), (String) row.get("response_content"), (Boolean) row.get("correct"));
     }
 
     private Question getQuestionForDbRow(Map<String, Object> row) {
@@ -198,6 +241,7 @@ public class QuestionDao {
         question.setContent((String) row.get("question_content"));
         question.setTopic((String) row.get("topic"));
         question.setRank((Integer) row.get("rank"));
+        question.setQuizId((Integer) row.get("quiz_id"));
         question.setResponses(getResponsesByQuestionId(question));
         return question;
     }

@@ -8,17 +8,19 @@ public class Question {
     private String content;
     private String topic;
     private Integer rank;
+    private Integer quizId;
     private List<Response> responses;
 
     public Question() {
     }
 
-    public Question(Integer id, String content, String topic, Integer rank, List<Response> responses) {
+    public Question(Integer id, String content, String topic, Integer rank, List<Response> responses, Integer quizId) {
         this.id = id;
         this.content = content;
         this.topic = topic;
         this.rank = rank;
         this.responses = responses;
+        this.quizId = quizId;
     }
 
     public Question(String content, String topic, Integer rank, List<Response> responses) {
@@ -26,6 +28,14 @@ public class Question {
         this.topic = topic;
         this.rank = rank;
         this.responses = responses;
+    }
+
+    public Integer getQuizId() {
+        return quizId;
+    }
+
+    public void setQuizId(Integer quizId) {
+        this.quizId = quizId;
     }
 
     public Integer getId() {
@@ -41,7 +51,10 @@ public class Question {
         if (this == o) return true;
         if (!(o instanceof Question)) return false;
         Question question = (Question) o;
-        return Objects.equals(content, question.content) && Objects.equals(topic, question.topic) && Objects.equals(rank, question.rank);
+        return Objects.equals(content, question.content)
+                && Objects.equals(topic, question.topic)
+                && Objects.equals(quizId, question.quizId)
+                && Objects.equals(rank, question.rank);
     }
 
     @Override
