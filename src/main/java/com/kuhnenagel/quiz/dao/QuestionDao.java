@@ -183,11 +183,17 @@ public class QuestionDao {
     }
 
     public void addQuestionToQuiz(long quizId, Question question) {
+        Question savedQuestion;
+        if (question.getId() == null) {
+            savedQuestion = save(question);
+        } else {
+            savedQuestion = question;
+        }
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
                     .prepareStatement(UPDATE_QUESTION_QUIZ_ID, Statement.RETURN_GENERATED_KEYS);
             ps.setLong(1, quizId);
-            ps.setLong(2, question.getId());
+            ps.setLong(2, savedQuestion.getId());
             return ps;
         });
     }
@@ -199,10 +205,6 @@ public class QuestionDao {
 
     private void deleteResponsesOf(Question question) {
         jdbcTemplate.update(DELETE_RESPONSE_BY_QUESTION_ID, question.getId());
-    }
-
-    public void deleteResponse(Response response) {
-        jdbcTemplate.update(DELETE_RESPONSE, response.getId());
     }
 
     private void deleteQuestion(long questionId) {

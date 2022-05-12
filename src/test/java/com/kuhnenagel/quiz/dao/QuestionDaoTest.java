@@ -1,6 +1,7 @@
 package com.kuhnenagel.quiz.dao;
 
 import com.kuhnenagel.quiz.model.Question;
+import com.kuhnenagel.quiz.model.Quiz;
 import com.kuhnenagel.quiz.model.Response;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
@@ -74,6 +75,21 @@ class QuestionDaoTest {
 
         assertTrue(questionDao.findById(questionFromDb.getId()).isEmpty());
         assertTrue(questionDao.findByTopic("topic2").isEmpty());
+    }
+
+    @Test
+    void ableToSaveQuizAndAddQuestionToIt() {
+        Question questionOneTopicOne = new Question("Content", "topic1", 1, List.of(new Response("content", true)));
+        Question questionTwoTopicOne = new Question("Content", "topic1", 1, List.of(new Response("content", true)));
+        Question questionThreeTopicTwo = new Question("Content", "topic2", 1, List.of(new Response("content", true)));
+        Quiz quiz = new Quiz("name", List.of(questionOneTopicOne, questionTwoTopicOne));
+
+        Quiz savedQuiz = questionDao.saveQuiz(quiz);
+        questionDao.addQuestionToQuiz(savedQuiz.getId(), questionThreeTopicTwo);
+        List<Question> list = questionDao.findByTopic("topic2");
+        assertNotNull(list);
+        assertFalse(list.isEmpty());
+        assertEquals(savedQuiz.getId(), list.get(0).getQuizId());
     }
 
 }
