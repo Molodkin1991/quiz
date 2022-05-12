@@ -18,7 +18,7 @@ import java.util.Map;
 public class QuestionDao {
 
     private static final String INSERT_QUESTION =
-            "INSERT INTO question (topic, content, rank) "
+            "INSERT INTO question (topic, question_content, rank) "
                     + " VALUES "
                     + " (?, ?, ?)";
     private static final String UPDATE_QUESTION =
@@ -75,15 +75,15 @@ public class QuestionDao {
                 return ps;
             }, keyHolder);
         }
-        question.setId((long) keyHolder.getKey());
-        saveAllResponses(question);
+        if(keyHolder.getKey() != null){
+            question.setId((long) keyHolder.getKey());
+            saveAllResponses(question);
+        }
         return question;
     }
 
     private void saveAllResponses(Question question) {
-        question.getResponses().forEach(response -> {
-            response.setQuestionId(question.getId());
-        });
+        question.getResponses().forEach(response -> response.setQuestionId(question.getId()));
     }
 
     private Response saveResponse(Response response) {
@@ -148,7 +148,7 @@ public class QuestionDao {
         Long questionId = (Long) row.get("id");
         Question question = new Question();
         question.setId(questionId);
-        question.setContent((String) row.get("content"));
+        question.setContent((String) row.get("question_content"));
         question.setTopic((String) row.get("topic"));
         question.setRank((Integer) row.get("rank"));
         question.setResponses(getResponsesByQuestionId(question));
