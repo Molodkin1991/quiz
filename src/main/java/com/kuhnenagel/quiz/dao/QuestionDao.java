@@ -90,17 +90,15 @@ public class QuestionDao {
         } else {
             jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection
-                        .prepareStatement(INSERT_QUESTION);
+                        .prepareStatement(INSERT_QUESTION, Statement.RETURN_GENERATED_KEYS);
                 ps.setString(1, question.getTopic());
                 ps.setString(2, question.getContent());
                 ps.setInt(3, question.getRank());
                 return ps;
             }, keyHolder);
         }
-        if (keyHolder.getKey() != null) {
-            question.setId((Integer) keyHolder.getKey());
-            saveAllResponses(question);
-        }
+        question.setId((Integer) keyHolder.getKeyList().get(0).get("id"));
+        saveAllResponses(question);
         return question;
     }
 
@@ -112,7 +110,7 @@ public class QuestionDao {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         if (response.getId() != null) {
             jdbcTemplate.update(connection -> {
-                PreparedStatement ps = connection.prepareStatement(UPDATE_RESPONSE);
+                PreparedStatement ps = connection.prepareStatement(UPDATE_RESPONSE, Statement.RETURN_GENERATED_KEYS);
                 ps.setString(1, response.getContent());
                 ps.setBoolean(2, response.isCorrect());
                 ps.setLong(3, response.getId());
@@ -120,21 +118,21 @@ public class QuestionDao {
             }, keyHolder);
         } else {
             jdbcTemplate.update(connection -> {
-                PreparedStatement ps = connection.prepareStatement(INSERT_RESPONSE);
+                PreparedStatement ps = connection.prepareStatement(INSERT_RESPONSE, Statement.RETURN_GENERATED_KEYS);
                 ps.setString(1, response.getContent());
                 ps.setBoolean(2, response.isCorrect());
                 return ps;
             }, keyHolder);
 
         }
-        response.setId((Integer) keyHolder.getKey());
+        response.setId((Integer) keyHolder.getKeyList().get(0).get("id"));
         return response;
     }
 
     public void updateQuestionContent(long questionId, String content) {
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
-                    .prepareStatement(UPDATE_QUESTION_CONTENT);
+                    .prepareStatement(UPDATE_QUESTION_CONTENT, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, content);
             ps.setLong(2, questionId);
             return ps;
@@ -144,7 +142,7 @@ public class QuestionDao {
     public void addQuestionToQuiz(long quizId, Question question) {
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
-                    .prepareStatement(UPDATE_QUESTION_QUIZ_ID);
+                    .prepareStatement(UPDATE_QUESTION_QUIZ_ID, Statement.RETURN_GENERATED_KEYS);
             ps.setLong(1, quizId);
             ps.setLong(2, question.getId());
             return ps;
@@ -194,7 +192,7 @@ public class QuestionDao {
     }
 
     private Question getQuestionForDbRow(Map<String, Object> row) {
-        Integer questionId =(Integer) row.get("id");
+        Integer questionId = (Integer) row.get("id");
         Question question = new Question();
         question.setId(questionId);
         question.setContent((String) row.get("question_content"));
