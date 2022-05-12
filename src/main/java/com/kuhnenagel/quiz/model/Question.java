@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class Question {
-    private Long id;
+    private Integer id;
     private String content;
     private String topic;
     private Integer rank;
@@ -13,7 +13,7 @@ public class Question {
     public Question() {
     }
 
-    public Question(Long id, String content, String topic, Integer rank, List<Response> responses) {
+    public Question(Integer id, String content, String topic, Integer rank, List<Response> responses) {
         this.id = id;
         this.content = content;
         this.topic = topic;
@@ -28,11 +28,11 @@ public class Question {
         this.responses = responses;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -41,7 +41,7 @@ public class Question {
         if (this == o) return true;
         if (!(o instanceof Question)) return false;
         Question question = (Question) o;
-        return Objects.equals(content, question.content) && Objects.equals(topic, question.topic) && Objects.equals(rank, question.rank) && Objects.equals(responses, question.responses);
+        return Objects.equals(content, question.content) && Objects.equals(topic, question.topic) && Objects.equals(rank, question.rank);
     }
 
     @Override

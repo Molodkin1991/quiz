@@ -9,8 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class QuestionDaoTest {
@@ -23,6 +24,7 @@ class QuestionDaoTest {
 
     @BeforeEach
     public void setup() {
+        flyway.clean();
         flyway.migrate();
     }
 
@@ -32,4 +34,29 @@ class QuestionDaoTest {
         Question returnedQuestion = questionDao.save(question);
         assertNotNull(returnedQuestion);
     }
+
+    @Test
+    void ableToGetQuestionsByTopicAnd() {
+        Question questionOneTopicOne = new Question("Content", "topic1", 1, List.of(new Response("content", true)));
+        Question questionTwoTopicOne = new Question("Content", "topic1", 1, List.of(new Response("content", true)));
+        Question questionThreeTopicTwo = new Question("Content", "topic2", 1, List.of(new Response("content", true)));
+        questionDao.save(questionOneTopicOne);
+        questionDao.save(questionTwoTopicOne);
+        questionDao.save(questionThreeTopicTwo);
+
+        List<Question> questionList = questionDao.findByTopic("topic1");
+        assertNotNull(questionList);
+        assertEquals(2, questionList.size());
+        assertTrue(questionList.contains(questionOneTopicOne));
+        assertTrue(questionList.contains(questionTwoTopicOne));
+
+        Question questionFromDb  = questionDao.findByTopic("topic2").get(0);
+
+        questionDao.deleteQuestion(questionFromDb);
+
+        assertTrue(questionDao.findById(questionFromDb.getId()).isEmpty());
+        assertTrue(questionDao.findByTopic("topic2").isEmpty());
+    }
+
+
 }

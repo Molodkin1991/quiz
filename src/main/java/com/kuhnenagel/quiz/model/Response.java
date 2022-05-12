@@ -3,8 +3,8 @@ package com.kuhnenagel.quiz.model;
 import java.util.Objects;
 
 public class Response {
-    private Long id;
-    private Long questionId;
+    private Integer id;
+    private Integer questionId;
     private String content;
     private boolean correct;
 
@@ -12,11 +12,11 @@ public class Response {
         new Response(null, content, correct);
     }
 
-    public Response(Long questionId, String content, boolean correct) {
+    public Response(Integer questionId, String content, boolean correct) {
         new Response(null, questionId, content, correct);
     }
 
-    public Response(Long id, Long questionId, String content, boolean correct) {
+    public Response(Integer id, Integer questionId, String content, boolean correct) {
         this.id = id;
         this.questionId = questionId;
         this.content = content;
@@ -28,7 +28,8 @@ public class Response {
         if (this == o) return true;
         if (!(o instanceof Response)) return false;
         Response response = (Response) o;
-        return correct == response.correct && Objects.equals(id, response.id) && Objects.equals(questionId, response.questionId) && Objects.equals(content, response.content);
+        return correct == response.correct && Objects.equals(questionId, response.questionId) && Objects.equals(content, response.content)
+                && Objects.equals(id, response.id);
     }
 
     @Override
@@ -36,19 +37,19 @@ public class Response {
         return Objects.hash(id, questionId, content, correct);
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public Long getQuestionId() {
+    public Integer getQuestionId() {
         return questionId;
     }
 
-    public void setQuestionId(Long questionId) {
+    public void setQuestionId(Integer questionId) {
         this.questionId = questionId;
     }
 
